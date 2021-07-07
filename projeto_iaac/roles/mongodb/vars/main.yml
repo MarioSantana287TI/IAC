@@ -1,0 +1,5 @@
+---
+# vars file for mongodb
+
+user_mongo: admin
+pass_mongo: P@ssword

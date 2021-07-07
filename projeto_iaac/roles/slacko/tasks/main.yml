@@ -1,0 +1,60 @@
+---
+# tasks file for slacko
+- name: "Baixa o projeto via Git"
+  git:
+    repo: "{{ repo }}"
+    dest: /opt/temp
+    separate_git_dir: /opt/ansible-examples.git
+  tags:
+  - update
+
+- name: "Criar diretório Slack-API"
+  file:
+    path: "{{ api_dir }}"
+    state: directory
+
+- name: "Copiar arquivos para o diretório"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ api_dir }}"
+    mode: '0755'
+    remote_src: yes
+  with_items:
+    - /opt/temp/main.py
+  tags:
+  - update
+
+- name: "Copiar o arquivo de configuração da API"
+  template:
+    src: templates/slacko-api.sh
+    dest: "{{ api_dir }}"
+    mode: '0755'
+
+- name: "Instala os requerimentos do Python"
+  pip:
+    requirements: /opt/temp/requeriments.txt
+
+- name: "Iniciando o Serviço slacko-api"
+  template:
+    src: templates/slacko-api.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+  notify:
+    - inicia-slacko-api.service
+  
+- name: "start-slacko"
+  systemd:
+    name: slacko-api
+    state: started
+  tags:
+  - update
+
+- name: "Valida se o serviço está no Ar"
+  uri:
+    url: "http://{{ ansible_host }}:8000/healthcheck"
+  register: statusApi
+
+- name: "Exibe o status da aplicação"
+  debug:
+    msg: "O status da API é: {{ statusApi.json.status }}"

@@ -1,0 +1,4 @@
+---
+# vars file for slacko
+api_dir: "/opt/slacko-api/"
+repo: "https://github.com/LeonardoDG2084/iaac_slacko-api"

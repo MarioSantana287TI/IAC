@@ -1,0 +1,10 @@
+---
+# handlers file for slacko
+
+- name: "inicia-slacko-api.service"
+  systemd:
+    name: slacko-api
+    state: started
+    enabled: yes
+
+
